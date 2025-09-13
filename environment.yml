@@ -1,0 +1,6 @@
+name: seedvc
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+prefix: /Users/fcp/opt/anaconda3/envs/seedvc
