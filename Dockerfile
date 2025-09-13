@@ -35,7 +35,7 @@ RUN if [ -f environment.yml ]; then \
     fi \
  && micromamba clean -a -y
 
-# Install pip-only dependencies (like webrtcvad)
+# Install pip-only dependencies
 RUN --mount=type=cache,target=/root/.cache/pip \
     if [ -f requirements.txt ]; then \
       micromamba run -n appenv pip install --no-cache-dir -r requirements.txt; \
