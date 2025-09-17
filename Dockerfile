@@ -2,10 +2,13 @@
 
 FROM mambaorg/micromamba:1.5.3
 
-# Switch to root to install system build dependencies
+# Switch to root to install system build dependencies, give mambauser access to volume dir
 USER root
 
-ENV VOLUME_DIR="/runpod-volume/output"
+ENV VOLUME_DIR="/runpod-volume"
+ENV PATH=/opt/conda/bin:$PATH
+
+RUN mkdir -p ${VOLUME_DIR} && chown -R mambauser ${VOLUME_DIR}
 
 RUN --mount=type=cache,target=/var/cache/apt \
     --mount=type=cache,target=/var/lib/apt \
@@ -16,16 +19,12 @@ RUN --mount=type=cache,target=/var/cache/apt \
         cmake \
     && rm -rf /var/lib/apt/lists/*
 
-# Switch back to micromamba user
-WORKDIR /app
+# Copy environment and code with correct ownership
+COPY --chown=mambauser:mambauser environment.yml requirements.txt ./
+COPY --chown=mambauser:mambauser . .
 
-# Copy your environment and code
-COPY environment.yml requirements.txt ./
-COPY . .
-
-# Copy input and output folders
-COPY ./input ./input
-RUN mkdir -p ./output
+# Create input/output dirs
+RUN mkdir -p ./input ./output
 
 # Create environment
 RUN if [ -f environment.yml ]; then \
@@ -35,10 +34,18 @@ RUN if [ -f environment.yml ]; then \
     fi \
  && micromamba clean -a -y
 
+# Ensure mamba cache exists
+RUN mkdir -p /home/mambauser/.cache/mamba \
+    && chown -R mambauser:mambauser /home/mambauser/.cache/mamba
+
 # Install pip-only dependencies
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/home/mambauser/.cache/pip \
+    --mount=type=cache,target=/home/mambauser/.cache/mamba \
     if [ -f requirements.txt ]; then \
       micromamba run -n appenv pip install --no-cache-dir -r requirements.txt; \
     fi
 
-CMD ["micromamba", "run", "-n", "appenv", "python", "inference_v2.py", "--source", "./input/ref_audio_meme.wav", "--target", "./input/output_en_default.wav", "--output", $VOLUME_DIR]
+# Entrypoint
+
+ENTRYPOINT ["micromamba", "run", "-n", "appenv", "python", "inference_v2.py"]
+CMD ["--source", "./input/ref_audio_meme.wav", "--target", "./input/output_en_default.wav", "--output", "/runpod-volume"]
