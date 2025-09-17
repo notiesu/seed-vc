@@ -12,18 +12,22 @@ for arg in "$@"; do
   esac
 done
 
+# get logged-in docker username
+DOCKER_USER=$(docker whoami)
+
 CACHE_TO=""
 LOAD_OPTION=""
 if [ "$WRITE_TO_CACHE" = true ]; then
-  CACHE_TO="--cache-to=type=registry,ref=docker.io/notiesu/mycache:latest,mode=max"
+  CACHE_TO="--cache-to=type=registry,ref=docker.io/$DOCKER_USER/mycache:latest,mode=max"
   LOAD_OPTION="--load"
 fi
 
 docker buildx build \
   $CACHE_TO \
-  --cache-from=type=registry,ref=docker.io/notiesu/mycache:latest \
+  --cache-from=type=registry,ref=docker.io/$DOCKER_USER/mycache:latest \
   --load \
-  -t notiesu/seedvc-infer:v$1 ..
+  -t $DOCKER_USER/seedvc-infer:v$1 ..
 
-echo "Built seedvc-infer:v$1"
+echo "Built $DOCKER_USER/seedvc-infer:v$1"
+
 
