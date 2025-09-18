@@ -47,5 +47,6 @@ RUN --mount=type=cache,target=/home/mambauser/.cache/pip \
 
 # Entrypoint
 
-ENTRYPOINT ["micromamba", "run", "-n", "appenv", "python", "inference_v2.py"]
-CMD ["--source", "./input/ref_audio_meme.wav", "--target", "./input/output_en_default.wav", "--output", "/runpod-volume"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]

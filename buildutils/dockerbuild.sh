@@ -13,7 +13,7 @@ for arg in "$@"; do
 done
 
 # get logged-in docker username
-DOCKER_USER=$(docker whoami)
+DOCKER_USER=notiesu
 
 CACHE_TO=""
 LOAD_OPTION=""
