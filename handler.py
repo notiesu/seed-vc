@@ -1,22 +1,39 @@
 import runpod
 import os
+import subprocess
 
 def handler(job):
     # Get the input from the job
-    job_input = job["input"]
-    
+    input = job.get("input", {})
+    source_path = input.get("source_path")
+    target_path = input.get("target_path")
+    output_path = input.get("output_path")
+    inference_flag = input.get("inference_flag")
+
     # Expecting the output_dir to be passed in the job input
-    output_dir = job_input.get("output_dir")
-    if not output_dir:
-        return {"status": "error", "message": "No output_dir provided"}
+    print(f"source_path: {source_path}")
+    print(f"target_path: {target_path}")
+    print(f"output_path: {output_path}")
 
-    output_file = os.path.join(output_dir, "output.wav")
+    #check for micromamba installation
+    runwithmicromamba = ["micromamba", "run", "-n", "appenv"]
+    runinference = ["python", "inference_v2.py", "--source", source_path, "--target", target_path, "--output", output_path]
+    runtrain = ["python", "train.py", "--source", source_path, "--target", target_path, "--output", output_path, "--no-inference"]
+    if not os.path.exists("/opt/micromamba/bin/micromamba"):
+        if inference_flag:
+            subprocess.run(runinference, check=True)
+        else:
+            subprocess.run(runtrain, check=True)
 
-    # Check if the file exists
-    if os.path.exists(output_file):
-        return {"status": "success", "output_path": output_file}
+    # Call the voice cloning script
+    if inference_flag:
+        subprocess.run(runwithmicromamba + runinference, check=True)
     else:
-        return {"status": "error", "message": f"{output_file} not found"}
+        subprocess.run(runwithmicromamba + runtrain, check=True)
+    if os.path.exists(output_path):
+        print(f"Output file created at: {output_path}")
+    else:
+        print(f"Failed to create output file at: {output_path}")
 
 # Start the serverless handler
 runpod.serverless.start({"handler": handler})
