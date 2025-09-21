@@ -11,7 +11,7 @@ def handler(job):
     checkpt_path = input.get("checkpt_path", None)
     config_path = input.get("config_path", None)
     inference_flag = input.get("inference_flag")
-    training_data = input.get("training_data", None)
+    training_data = input.get("data_dir", None)
 
     # Expecting the output_dir to be passed in the job input
     print(f"source_path: {source_path}")

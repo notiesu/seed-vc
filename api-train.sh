@@ -26,7 +26,7 @@ done
 $MICROMAMBA accelerate launch train_v2.py \
 --dataset-dir $DATASET_DIR \
 --run-name $RUN_NAME \
---batch-size 2 \
+--batch-size 5 \
 --max-steps 1000 \
 --max-epochs 1000 \
 --save-every 500 \

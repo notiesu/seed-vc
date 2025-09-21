@@ -2,6 +2,7 @@
 
 WRITE_TO_CACHE=false
 
+export $(grep -v '^#' .env | xargs)
 # parse arguments
 for arg in "$@"; do
   case $arg in
@@ -11,9 +12,6 @@ for arg in "$@"; do
       ;;
   esac
 done
-
-# get logged-in docker username
-DOCKER_USER=notiesu
 
 CACHE_TO=""
 LOAD_OPTION=""
@@ -26,8 +24,8 @@ docker buildx build \
   $CACHE_TO \
   --cache-from=type=registry,ref=docker.io/$DOCKER_USER/mycache:latest \
   --load \
-  -t $DOCKER_USER/seedvc-infer:v$1 ..
+  -t $DOCKER_USER/audio-ml:v$1 ..
 
-echo "Built $DOCKER_USER/seedvc-infer:v$1"
+echo "Built $DOCKER_USER/audio-ml:v$1"
 
 

@@ -1,0 +1,41 @@
+# syntax=docker/dockerfile:1.4
+FROM mambaorg/micromamba:1.5.3
+
+# Switch to root to install system build dependencies
+USER root
+
+ENV PATH=/opt/conda/bin:$PATH
+
+# Install system dependencies
+RUN --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,target=/var/lib/apt \
+    apt-get update && apt-get install -y \
+        ffmpeg \
+        build-essential \
+        python3-dev \
+        cmake \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy only environment files
+COPY --chown=mambauser:mambauser environment.yml requirements.txt ./
+
+# Create micromamba environment
+RUN if [ -f environment.yml ]; then \
+        micromamba create -y -n appenv -f environment.yml; \
+    else \
+        micromamba create -y -n appenv python=3.11; \
+    fi \
+    && micromamba clean -a -y
+
+# Ensure pip/mamba caches exist
+RUN mkdir -p ~/.cache/pip ~/.cache/mamba
+
+# Install pip-only dependencies
+RUN --mount=type=cache,target=/home/mambauser/.cache/pip \
+    --mount=type=cache,target=/home/mambauser/.cache/mamba \
+    if [ -f requirements.txt ]; then \
+        micromamba run -n appenv pip install --no-cache-dir -r requirements.txt; \
+    fi
+
+# Set default shell to use micromamba environment
+SHELL ["micromamba", "run", "-n", "appenv", "/bin/bash", "-c"]

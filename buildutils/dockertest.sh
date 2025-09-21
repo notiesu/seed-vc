@@ -1,3 +1,4 @@
 #!/bin/sh
 
-docker run --rm -it notiesu/seedvc-infer:v$1
+export $(grep -v '^#' .env | xargs)
+docker run --rm -it $DOCKER_USER/audio-ml:v$1

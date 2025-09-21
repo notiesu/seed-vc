@@ -1,0 +1,17 @@
+# syntax=docker/dockerfile:1.4
+
+FROM notiesu/seedvc-base:1.0
+
+USER root
+
+ENV VOLUME_DIR="/runpod-volume"
+ENV PATH=/opt/conda/bin:$PATH
+
+RUN mkdir -p ${VOLUME_DIR} && chown -R mambauser ${VOLUME_DIR}
+
+COPY --chown=mambauser:mambauser . .
+# Entrypoint
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
