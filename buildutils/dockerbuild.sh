@@ -2,7 +2,9 @@
 
 WRITE_TO_CACHE=false
 
-export $(grep -v '^#' .env | xargs)
+cd ..
+
+export $(grep -v '^#' ../.env | xargs)
 # parse arguments
 for arg in "$@"; do
   case $arg in
@@ -24,7 +26,11 @@ docker buildx build \
   $CACHE_TO \
   --cache-from=type=registry,ref=docker.io/$DOCKER_USER/mycache:latest \
   --load \
-  -t $DOCKER_USER/audio-ml:v$1 ..
+  -t $DOCKER_USER/audio-ml:$1 \
+  -f Dockerfile.handler \
+  --push \
+  .
+
 
 echo "Built $DOCKER_USER/audio-ml:v$1"
 

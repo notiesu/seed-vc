@@ -7,4 +7,4 @@ else
     MICROMAMBA=""
 fi
 
-python $MICROMAMBA inference_v2.py "$@"
+$MICROMAMBA python inference.py "$@"

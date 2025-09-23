@@ -23,15 +23,8 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
-$MICROMAMBA accelerate launch train_v2.py \
---dataset-dir $DATASET_DIR \
---run-name $RUN_NAME \
---batch-size 5 \
---max-steps 1000 \
---max-epochs 1000 \
---save-every 500 \
---num-workers 0 \
---train-cfm
+$MICROMAMBA python train.py "$@"
+mkdir -p /runpod-volume/checkpts/$RUN_NAME
 
-#output to the volume dir
+# Output to the volume dir
 cp -r runs/$RUN_NAME /runpod-volume/checkpts/$RUN_NAME

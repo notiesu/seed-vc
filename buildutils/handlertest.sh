@@ -8,9 +8,9 @@ export $(cat .env | xargs)
 python handler.py \
     --test_input '{
         "input": {
-            "source_path": "../inputs/example_source.wav",
-            "target_path": "../inputs/example_target.wav",
-            "output_path": "output",
+            "source": "../inputs/example_source.wav",
+            "target": "../inputs/example_target.wav",
+            "output": "output",
             "inference_flag": true
         }
     }'
@@ -20,6 +20,6 @@ python handler.py \
     --test_input '{
         "input": {
             "inference_flag": false,
-            "training_data": ${TRAINING_DATA_DIR}
+            "dataset-dir": ${TRAINING_DATA_DIR}
         }
     }'
